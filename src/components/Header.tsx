@@ -102,14 +102,14 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onOpenSupabase}
           className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all border flex items-center gap-1.5 cursor-pointer shadow-sm ${
-            isSupabaseConfigured
+            isSupabaseConfigured()
               ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
               : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'
           }`}
           title="ربط سوبا بيز (Supabase)"
         >
           <Database className="w-4 h-4 text-emerald-600" />
-          <span>{isSupabaseConfigured ? 'سوبا بيز متصل' : 'ربط Supabase'}</span>
+          <span>{isSupabaseConfigured() ? 'سوبا بيز متصل' : 'ربط Supabase'}</span>
         </button>
 
         {/* Held Orders Button */}

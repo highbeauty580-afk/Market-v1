@@ -113,13 +113,13 @@ export default function App() {
 
   // Load from Supabase on initial load if configured
   useEffect(() => {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured()) {
       handleSyncSupabase();
     }
   }, []);
 
   const handleSyncSupabase = async () => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured()) return;
     const { products: remoteProducts, missingTable: missingProductsTable } = await fetchProductsFromSupabase();
     if (remoteProducts.length > 0) {
       setProducts(remoteProducts);
@@ -341,7 +341,7 @@ export default function App() {
       const itemInCart = cart.find((ci) => ci.product.id === p.id);
       if (itemInCart) {
         const newProd = { ...p, stock: Math.max(0, p.stock - itemInCart.quantity) };
-        if (isSupabaseConfigured) saveProductToSupabase(newProd);
+        if (isSupabaseConfigured()) saveProductToSupabase(newProd);
         return newProd;
       }
       return p;
@@ -353,7 +353,7 @@ export default function App() {
     setOrdersHistory((prev) => [completedOrder, ...prev]);
 
     // Sync Order to Supabase
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured()) {
       saveOrderToSupabase(completedOrder);
     }
 
@@ -382,7 +382,7 @@ export default function App() {
       return [prod, ...prev];
     });
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured()) {
       saveProductToSupabase(prod);
     }
   };
@@ -390,7 +390,7 @@ export default function App() {
   const handleDeleteProduct = (id: string) => {
     posAudio.playBeep();
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured()) {
       deleteProductFromSupabase(id);
     }
   };
@@ -552,6 +552,8 @@ export default function App() {
         onSyncSupabase={handleSyncSupabase}
         onClearAllProducts={handleClearAllProducts}
         productsCount={products.length}
+        productsList={products}
+        ordersList={ordersHistory}
       />
     </div>
   );
