@@ -2,6 +2,7 @@ import { Category, Product, StoreConfig } from '../types/pos';
 
 export const CATEGORIES: Category[] = [
   { id: 'all', name: 'جميع الأصناف', icon: 'Grid' },
+  { id: 'honey_bucket', name: 'جردل العسل', icon: 'Heart' },
   { id: 'beverages', name: 'مشروبات ومياه', icon: 'CupSoda' },
   { id: 'dairy', name: 'ألبان وأجبان', icon: 'Milk' },
   { id: 'bakery', name: 'مخبوزات وحلويات', icon: 'UtensilsCrossed' },
@@ -23,4 +24,16 @@ export const DEFAULT_STORE_CONFIG: StoreConfig = {
   receiptFooter: 'شكراً لتسوقكم معنا - يسعدنا خدمتكم دائماً',
 };
 
-export const INITIAL_PRODUCTS: Product[] = [];
+export const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: 'honey-amouna-1',
+    barcode: '999999',
+    name: 'امونه العسل',
+    nameEn: 'Amouna Honey Special',
+    category: 'honey_bucket',
+    price: 999,
+    stock: 1,
+    unit: 'قلبي',
+    color: '#e11d48'
+  }
+];

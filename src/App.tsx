@@ -5,6 +5,11 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
+  Store,
+  ShoppingBag,
+  ArrowRight
+} from 'lucide-react';
+import { 
   Product, 
   CartItem, 
   Order, 
@@ -28,7 +33,9 @@ import { ProductManagerModal } from './components/ProductManagerModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { SettingsModal } from './components/SettingsModal';
 import { SupabaseConnectModal } from './components/SupabaseConnectModal';
+import { AmounaReservedModal } from './components/AmounaReservedModal';
 import { posAudio } from './utils/audio';
+import { formatCurrency } from './utils/receiptGenerator';
 import { 
   isSupabaseConfigured, 
   fetchProductsFromSupabase, 
@@ -74,6 +81,7 @@ export default function App() {
   // Filter & Search
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeMobileTab, setActiveMobileTab] = useState<'catalog' | 'cart'>('catalog');
 
   // Active Completed Receipt Modal Target
   const [lastCompletedOrder, setLastCompletedOrder] = useState<Order | null>(null);
@@ -89,6 +97,7 @@ export default function App() {
   const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isSupabaseOpen, setIsSupabaseOpen] = useState<boolean>(false);
+  const [isAmounaOpen, setIsAmounaOpen] = useState<boolean>(false);
 
   // Save changes to localStorage
   useEffect(() => {
@@ -120,18 +129,13 @@ export default function App() {
 
   const handleSyncSupabase = async () => {
     if (!isSupabaseConfigured()) return;
-    const { products: remoteProducts, missingTable: missingProductsTable } = await fetchProductsFromSupabase();
+    const { products: remoteProducts } = await fetchProductsFromSupabase();
     if (remoteProducts.length > 0) {
       setProducts(remoteProducts);
     }
-    const { orders: remoteOrders, missingTable: missingOrdersTable } = await fetchOrdersFromSupabase();
+    const { orders: remoteOrders } = await fetchOrdersFromSupabase();
     if (remoteOrders.length > 0) {
       setOrdersHistory(remoteOrders);
-    }
-
-    if (missingProductsTable || missingOrdersTable) {
-      // Auto open setup modal if tables need creation
-      setIsSupabaseOpen(true);
     }
   };
 
@@ -202,6 +206,11 @@ export default function App() {
 
   // Add Item to Cart
   const handleAddToCart = (product: Product) => {
+    if (product.name.includes('امونه العسل') || product.id === 'honey-amouna-1') {
+      posAudio.playBeep();
+      setIsAmounaOpen(true);
+      return;
+    }
     posAudio.playBeep();
     setCart((prevCart) => {
       const existingIndex = prevCart.findIndex((i) => i.product.id === product.id);
@@ -405,7 +414,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen pos-ambient-bg text-slate-800 overflow-hidden select-none dir-rtl font-sans">
+    <div className="flex flex-col min-h-[100dvh] h-[100dvh] w-screen pos-ambient-bg text-slate-800 overflow-hidden select-none dir-rtl font-sans">
       {/* 1. Header Navigation Bar */}
       <Header
         storeConfig={storeConfig}
@@ -419,16 +428,51 @@ export default function App() {
         onOpenSupabase={() => setIsSupabaseOpen(true)}
       />
 
+      {/* Mobile Tab Segmented Switcher (< lg) */}
+      <div className="flex lg:hidden items-center p-1 mx-3 mt-2 bg-slate-200/90 rounded-2xl gap-1 shrink-0">
+        <button
+          onClick={() => setActiveMobileTab('catalog')}
+          className={`flex-1 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            activeMobileTab === 'catalog'
+              ? 'bg-white text-emerald-700 shadow-sm border border-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Store className="w-4 h-4 text-emerald-600" />
+          <span>الأصناف والمنتجات ({filteredProducts.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveMobileTab('cart')}
+          className={`flex-1 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer relative ${
+            activeMobileTab === 'cart'
+              ? 'bg-white text-indigo-700 shadow-sm border border-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <ShoppingBag className="w-4 h-4 text-indigo-600" />
+          <span>سلة الفاتورة</span>
+          {cart.length > 0 && (
+            <span className="bg-indigo-600 text-white font-mono text-[10px] px-2 py-0.2 rounded-full font-bold">
+              {cart.reduce((s, i) => s + i.quantity, 0)}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* 2. Main POS Workspace Grid Split */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-3 gap-3.5">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-2 sm:p-3 gap-2.5 sm:gap-3.5">
         {/* Left Column: Catalog, Categories, and Barcode Bar */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xl shadow-slate-200/50">
+        <div className={`flex-1 flex-col overflow-hidden bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-lg ${
+          activeMobileTab === 'catalog' ? 'flex' : 'hidden lg:flex'
+        }`}>
           {/* Barcode & Search Input Bar */}
           <BarcodeScannerBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             onBarcodeSubmit={handleBarcodeSubmit}
             onOpenCustomItem={() => setIsCustomItemOpen(true)}
+            products={products}
           />
 
           {/* Touch Category Filters */}
@@ -445,24 +489,56 @@ export default function App() {
             onAddToCart={handleAddToCart}
             onOpenCustomItem={() => setIsCustomItemOpen(true)}
           />
+
+          {/* Sticky Mobile Checkout Bar when on Catalog tab */}
+          {cart.length > 0 && (
+            <div className="lg:hidden p-3 bg-slate-900 text-white border-t border-slate-800 flex items-center justify-between gap-2 shrink-0">
+              <div>
+                <div className="text-[11px] text-slate-400">
+                  {cart.reduce((s, i) => s + i.quantity, 0)} صنف في السلة
+                </div>
+                <div className="text-sm font-black text-emerald-400 font-mono">
+                  {formatCurrency(
+                    Math.max(
+                      0,
+                      cart.reduce((sum, i) => sum + (i.customPrice ?? i.product.price) * i.quantity, 0) - orderDiscountAmount
+                    ) * (1 + storeConfig.vatRate),
+                    storeConfig.currency
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setActiveMobileTab('cart')}
+                className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+              >
+                <span>متابعة الفاتورة والدفع</span>
+                <ArrowRight className="w-4 h-4 rotate-180" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Order Cart & Cashier Total Display */}
-        <CartPanel
-          cart={cart}
-          orderNumber={orderNumber}
-          currency={storeConfig.currency}
-          vatRate={storeConfig.vatRate}
-          customerName={customerName}
-          setCustomerName={setCustomerName}
-          orderDiscountAmount={orderDiscountAmount}
-          setOrderDiscountAmount={setOrderDiscountAmount}
-          onUpdateQuantity={handleUpdateQuantity}
-          onRemoveItem={handleRemoveItem}
-          onClearCart={handleClearCart}
-          onHoldOrder={handleHoldOrder}
-          onOpenCheckout={handleOpenCheckout}
-        />
+        <div className={`flex-1 lg:flex-none ${
+          activeMobileTab === 'cart' ? 'flex h-full' : 'hidden lg:flex h-full'
+        }`}>
+          <CartPanel
+            cart={cart}
+            orderNumber={orderNumber}
+            currency={storeConfig.currency}
+            vatRate={storeConfig.vatRate}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            orderDiscountAmount={orderDiscountAmount}
+            setOrderDiscountAmount={setOrderDiscountAmount}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            onHoldOrder={handleHoldOrder}
+            onOpenCheckout={handleOpenCheckout}
+          />
+        </div>
       </div>
 
       {/* 3. MODALS SYSTEM */}
@@ -554,6 +630,12 @@ export default function App() {
         productsCount={products.length}
         productsList={products}
         ordersList={ordersHistory}
+      />
+
+      {/* Amouna Reserved Popup Modal */}
+      <AmounaReservedModal
+        isOpen={isAmounaOpen}
+        onClose={() => setIsAmounaOpen(false)}
       />
     </div>
   );

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Store, 
-  Volume2, 
-  VolumeX, 
   PauseCircle, 
   BarChart3, 
   Package, 
@@ -11,7 +9,6 @@ import {
   Clock
 } from 'lucide-react';
 import { StoreConfig } from '../types/pos';
-import { posAudio } from '../utils/audio';
 
 interface HeaderProps {
   storeConfig: StoreConfig;
@@ -36,7 +33,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [time, setTime] = useState<string>('');
   const [date, setDate] = useState<string>('');
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   useEffect(() => {
     const updateTime = () => {
@@ -48,13 +44,6 @@ export const Header: React.FC<HeaderProps> = ({
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const toggleSound = () => {
-    const next = !soundEnabled;
-    setSoundEnabled(next);
-    posAudio.enabled = next;
-    if (next) posAudio.playBeep();
-  };
 
   return (
     <header className="bg-white/95 border border-slate-200/90 shadow-sm rounded-2xl mx-3 mt-3 px-4 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0 select-none will-change-transform">
@@ -120,19 +109,6 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Package className="w-4 h-4 text-cyan-600" />
           <span>الأصناف</span>
-        </button>
-
-        {/* Sound Toggle */}
-        <button
-          onClick={toggleSound}
-          className={`p-2 rounded-xl border text-xs active:scale-95 transition-all duration-150 cursor-pointer shadow-xs ${
-            soundEnabled
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
-              : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
-          }`}
-          title={soundEnabled ? 'إيقاف الأصوات' : 'تفعيل الأصوات'}
-        >
-          {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </button>
 
         {/* Keyboard Shortcuts */}

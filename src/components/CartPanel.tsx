@@ -91,22 +91,6 @@ export const CartPanel: React.FC<CartPanelProps> = ({
             </p>
           </div>
         </div>
-
-        {/* Customer Name Selector / Quick Tag */}
-        <div className="flex items-center gap-1.5">
-          <User className="w-3.5 h-3.5 text-slate-400" />
-          <select
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="bg-white text-slate-800 border border-slate-200 text-xs rounded-xl px-2.5 py-1 focus:outline-none focus:border-emerald-600 font-bold shadow-sm"
-          >
-            <option value="عميل عام">عميل عام</option>
-            <option value="عميل مميز (VIP)">عميل مميز (VIP)</option>
-            <option value="عميل شركاء">عميل شركاء</option>
-            <option value="طلب سفري">طلب سفري</option>
-            <option value="طلب توصيل">طلب توصيل</option>
-          </select>
-        </div>
       </div>
 
       {/* Cart Itemized Table / List */}

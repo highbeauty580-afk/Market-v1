@@ -3,45 +3,55 @@
 @layer base {
   body {
     font-family: 'Cairo', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: #f8fafc;
+    background-color: #0f172a;
+    color: #1e293b;
   }
 }
 
-/* Floating Ambient Gradient Mesh */
+/* Floating Ultra Glassmorphic Ambient Mesh Background */
 .pos-ambient-bg {
   background: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.06) 0px, transparent 50%),
-    linear-gradient(135deg, #f1f5f9 0%, #f8fafc 50%, #eff6ff 100%);
+    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(225, 29, 72, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
+    linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 50%, #f1f5f9 100%);
+  background-attachment: fixed;
 }
 
-/* Floating Card Base */
-.floating-card {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
+/* Floating Glass Cards & Containers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 30px -10px rgba(71, 85, 105, 0.08), 0 4px 12px -2px rgba(71, 85, 105, 0.04);
+  box-shadow: 
+    0 20px 40px -15px rgba(15, 23, 42, 0.07),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
 
-.floating-card-hover {
+.floating-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.floating-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px -12px rgba(99, 102, 241, 0.12), 0 6px 16px -2px rgba(16, 185, 129, 0.08);
+.floating-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.15);
 }
 
-/* Custom Scrollbar for POS touch interface */
+/* Custom Touch Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -74,4 +84,3 @@
     font-size: 12px !important;
   }
 }
-
