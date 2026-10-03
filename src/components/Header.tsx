@@ -6,9 +6,11 @@ import {
   Package, 
   Keyboard, 
   Settings,
-  Clock
+  Clock,
+  Database
 } from 'lucide-react';
 import { StoreConfig } from '../types/pos';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface HeaderProps {
   storeConfig: StoreConfig;
@@ -29,10 +31,16 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenReport,
   onOpenProductManager,
   onOpenShortcuts,
-  onOpenSettings
+  onOpenSettings,
+  onOpenSupabase
 }) => {
   const [time, setTime] = useState<string>('');
   const [date, setDate] = useState<string>('');
+  const [hasSupabase, setHasSupabase] = useState<boolean>(false);
+
+  useEffect(() => {
+    setHasSupabase(isSupabaseConfigured());
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -76,6 +84,22 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Zone 3: Quick POS Function Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
+        {/* Supabase Cloud Connect Button */}
+        {onOpenSupabase && (
+          <button
+            onClick={onOpenSupabase}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl active:scale-95 transition-all duration-150 border flex items-center gap-1.5 cursor-pointer shadow-xs ${
+              hasSupabase
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100 animate-pulse'
+            }`}
+            title="ربط قاعدة البيانات السحابية Supabase للمزامنة عبر الأجهزة"
+          >
+            <Database className={`w-4 h-4 ${hasSupabase ? 'text-emerald-600' : 'text-amber-600'}`} />
+            <span>{hasSupabase ? 'مربوط بسحابة Supabase ⚡' : 'ربط السحابة (Supabase) ⚠️'}</span>
+          </button>
+        )}
+
         {/* Held Orders Button */}
         <button
           onClick={onOpenHeldOrders}

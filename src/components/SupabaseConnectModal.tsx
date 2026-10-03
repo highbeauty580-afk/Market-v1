@@ -4,11 +4,12 @@ import {
   saveSupabaseCredentials, 
   clearSupabaseCredentials, 
   SUPABASE_SQL_SCHEMA,
+  testSupabaseConnection,
   pushAllLocalProductsToSupabase,
   pushAllLocalOrdersToSupabase
 } from '../lib/supabase';
 import { Product, Order } from '../types/pos';
-import { X, Database, CheckCircle2, AlertCircle, Copy, Key, Sparkles, RefreshCw, Save, Trash2, Upload } from 'lucide-react';
+import { X, Database, CheckCircle2, AlertCircle, Copy, Key, Sparkles, RefreshCw, Save, Trash2, Upload, Activity } from 'lucide-react';
 
 interface SupabaseConnectModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
   const [isSaved, setIsSaved] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ success?: boolean; message?: string }>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -43,23 +46,33 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
       setKeyInput(creds.key);
       setIsSaved(creds.isConfigured);
       setUploadMessage('');
+      setTestResult({});
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSaveCredentials = () => {
+  const handleSaveAndTestCredentials = async () => {
     if (!urlInput.trim() || !keyInput.trim()) {
-      alert('يرجى أدخال رابط المشروع (Supabase URL) ومفتاح (Anon Key) أولاً.');
+      alert('يرجى إدخال رابط المشروع (Supabase URL) ومفتاح (Anon Key) أولاً.');
       return;
     }
-    const ok = saveSupabaseCredentials(urlInput.trim(), keyInput.trim());
-    setIsSaved(ok);
-    if (ok) {
-      alert('تم حفظ بيانات الاتصال بقاعدة البيانات بنجاح في المتصفح! سيستمر الاتصال دائماً حتى بعد عمل Deploy.');
+
+    setIsTesting(true);
+    setTestResult({});
+
+    saveSupabaseCredentials(urlInput.trim(), keyInput.trim());
+    
+    // Live Read/Write Connection Test
+    const testRes = await testSupabaseConnection();
+    setIsTesting(false);
+    setTestResult(testRes);
+
+    if (testRes.success) {
+      setIsSaved(true);
       onSyncSupabase();
     } else {
-      alert('البيانات المدخلة غير مكتملة أو غير صحيحة.');
+      setIsSaved(false);
     }
   };
 
@@ -69,6 +82,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
       setUrlInput('');
       setKeyInput('');
       setIsSaved(false);
+      setTestResult({});
       alert('تم إزالة المفاتيح المحفوظة.');
     }
   };
@@ -81,11 +95,11 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
 
   const handleUploadAllToSupabase = async () => {
     if (!isSaved) {
-      alert('يرجى حفظ واختبار الاتصال بـ Supabase أولاً.');
+      alert('يرجى حفظ واختبار الاتصال بـ Supabase بنجاح أولاً.');
       return;
     }
     setIsUploading(true);
-    setUploadMessage('جاري رفع المنتجات والفواتير إلى Supabase...');
+    setUploadMessage('جاري رفع كافة المنتجات والفواتير المحلية إلى Supabase...');
 
     try {
       const prodRes = await pushAllLocalProductsToSupabase(productsList);
@@ -93,6 +107,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
       setUploadMessage(
         `تم بنجاح رفع ${prodRes.success} منتج و ${orderRes.success} فاتورة إلى Supabase! (فشل: ${prodRes.failed + orderRes.failed})`
       );
+      onSyncSupabase();
     } catch {
       setUploadMessage('حدث خطأ أثناء الرفع إلى Supabase.');
     } finally {
@@ -111,10 +126,10 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                <span>ربط وحفظ مفاتيح قاعدة البيانات Supabase</span>
+                <span>ربط قاعدة البيانات السحابية Supabase (PostgreSQL)</span>
                 {isSaved ? (
                   <span className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold border border-emerald-300 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> متصل ومحفوظ
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> متصل ومربوط
                   </span>
                 ) : (
                   <span className="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold border border-amber-300 flex items-center gap-1">
@@ -122,7 +137,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-500">حفظ المفاتيح في النظام لعدم الضياع عند عمل Deploy أو تحديث</p>
+              <p className="text-xs text-slate-500">مزامنة حية ولحظية بين الكمبيوتر والهواتف من رابط Vercel</p>
             </div>
           </div>
 
@@ -136,14 +151,14 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
 
         {/* Content */}
         <div className="p-6 overflow-y-auto space-y-5 text-xs">
-          {/* Step 1: Input Database Credentials */}
+          {/* Step 1: Input Credentials & Live Test */}
           <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3 shadow-xs">
             <h4 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
               <Key className="w-4 h-4 text-emerald-600" />
-              1. أدخل مفاتيح قاعدة البيانات الخاصّة بك (Supabase Credentials)
+              1. إدخال بيانات الاتصال بالسحابة (Supabase Credentials)
             </h4>
             <p className="text-slate-600 leading-relaxed font-medium">
-              أدخل رابط المشروع والمفتاح، وسيقوم النظام بحفظهما بشكل دائم حتى لا تضيع بياناتك أو الاتصال عند إعادة نشر التحديثات (Deploy):
+              أدخل رابط مشروعك والمفتاح الخاص بـ Supabase لمزامنة كافة الأجهزة والهواتف مع نفس السحابة:
             </p>
 
             <div className="space-y-3">
@@ -175,11 +190,12 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
 
               <div className="flex items-center gap-2 pt-1">
                 <button
-                  onClick={handleSaveCredentials}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                  onClick={handleSaveAndTestCredentials}
+                  disabled={isTesting}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>حفظ واختبار الاتصال</span>
+                  <Activity className="w-4 h-4" />
+                  <span>{isTesting ? 'جاري اختبار الاتصال بالقراءة والكتابة...' : 'حفظ واختبار الاتصال حياً'}</span>
                 </button>
 
                 {isSaved && (
@@ -192,6 +208,23 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
                   </button>
                 )}
               </div>
+
+              {testResult.message && (
+                <div
+                  className={`p-3 rounded-xl border text-[11px] font-bold flex items-center gap-2 ${
+                    testResult.success
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      : 'bg-rose-50 border-rose-300 text-rose-800'
+                  }`}
+                >
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
+                  <span>{testResult.message}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -200,7 +233,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
             <div className="flex items-center justify-between">
               <h4 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
                 <Database className="w-4 h-4 text-cyan-600" />
-                2. كود إنشاء الجداول بلمسة واحدة (Supabase SQL Editor)
+                2. إنشاء الجداول بضغطة زر واحدة (Supabase SQL Editor)
               </h4>
               <button
                 onClick={handleCopySql}
@@ -211,22 +244,22 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
               </button>
             </div>
             <p className="text-slate-600 leading-relaxed font-medium">
-              انسخ الكود الصقه في محرر SQL بموقع Supabase مرة واحدة لإنشاء الجداول المطلوبة تلقائياً:
+              انسخ كود SQL التالي، ثم الصقه في صفحة **SQL Editor** بداخل موقع Supabase واضغط **Run** لإنشاء الجداول وسياسات الأمان تلقائياً:
             </p>
 
-            <pre className="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-200 max-h-32 overflow-y-auto dir-ltr text-left">
+            <pre className="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-200 max-h-36 overflow-y-auto dir-ltr text-left">
               {SUPABASE_SQL_SCHEMA}
             </pre>
           </div>
 
-          {/* Step 3: Batch Sync / Push Data */}
+          {/* Step 3: Batch Migration */}
           <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3 shadow-xs">
             <h4 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
               <Sparkles className="w-4 h-4 text-amber-600" />
-              3. مزامنة البيانات والرفع الشامل
+              3. نقل ونقل البيانات الحالية إلى السحابة الموحدة
             </h4>
             <p className="text-slate-600 leading-relaxed font-medium">
-              يمكنك رفع جميع المنتجات والفواتير المسجلة محلياً إلى قاعدة بيانات Supabase دفعة واحدة أو جلب الأصناف المخزنة أونلاين:
+              اضغط الزر أدناه لرفع كافة منتجات وفواتير جهازك الحالي فوراً إلى Supabase لكي تظهر على الهاتف وباقي الأجهزة:
             </p>
 
             {uploadMessage && (
@@ -237,9 +270,9 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
 
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
               <div>
-                <div className="text-slate-900 font-extrabold">المنتجات بالحافظة المحلية: {productsCount}</div>
+                <div className="text-slate-900 font-extrabold">المنتجات بالحافظة الحالية: {productsCount}</div>
                 <div className="text-slate-500 text-[11px]">
-                  الفواتير المسجلة بالمظام: {ordersList.length}
+                  الفواتير الحالية بالنظام: {ordersList.length}
                 </div>
               </div>
 
@@ -250,7 +283,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
                   className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-md shadow-indigo-600/20"
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  <span>رفع الكل لـ Supabase</span>
+                  <span>رفع ورَفْع البيانات لـ Supabase</span>
                 </button>
 
                 <button
@@ -259,14 +292,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
                   className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-md shadow-emerald-600/20"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>تنزيل من Supabase</span>
-                </button>
-
-                <button
-                  onClick={onClearAllProducts}
-                  className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl transition-colors cursor-pointer"
-                >
-                  تفريغ المحلي
+                  <span>سحب القراءة المباشرة من Supabase</span>
                 </button>
               </div>
             </div>
@@ -276,7 +302,7 @@ export const SupabaseConnectModal: React.FC<SupabaseConnectModalProps> = ({
         {/* Footer */}
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
           <span className="text-[11px] text-slate-500 font-medium">
-            {isSaved ? '✅ مفاتيح قاعدة البيانات محفوظة بنجاح ولن تضيع عند عمل Deploy' : '⚠️ لم يتم حفظ مفاتيح قاعدة البيانات بعد'}
+            {isSaved ? '✅ الاتصال بالسحابة فعال وجميع الأجهزة تتشارك نفس البيانات' : '⚠️ لم يتم تأكيد الاتصال بالسحابة بعد'}
           </span>
           <button
             onClick={onClose}

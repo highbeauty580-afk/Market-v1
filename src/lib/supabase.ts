@@ -1,4 +1,4 @@
-import { Product, Order } from '../types/pos';
+import { Product, Order, StoreConfig } from '../types/pos';
 
 // Dynamic Credentials Resolver (checks localStorage first, then environment variables)
 export function getSupabaseCredentials() {
@@ -66,8 +66,8 @@ async function postgrestFetch(endpoint: string, options: RequestInit = {}) {
   }
 }
 
-// Database Schema SQL Script for user setup
-export const SUPABASE_SQL_SCHEMA = `-- Copy & Paste this SQL script into your Supabase SQL Editor to create tables for POS
+// Complete SQL Script for Supabase SQL Editor
+export const SUPABASE_SQL_SCHEMA = `-- COPY & PASTE THIS SQL IN SUPABASE SQL EDITOR TO CREATE POS TABLES:
 
 -- 1. Create Products Table
 CREATE TABLE IF NOT EXISTS public.products (
@@ -104,15 +104,58 @@ CREATE TABLE IF NOT EXISTS public.orders (
   status TEXT NOT NULL DEFAULT 'completed'
 );
 
--- Enable RLS & public access policies
+-- 3. Create Store Config Table
+CREATE TABLE IF NOT EXISTS public.store_config (
+  id TEXT PRIMARY KEY DEFAULT 'main_store',
+  store_name TEXT NOT NULL,
+  store_subtitle TEXT,
+  tax_number TEXT,
+  cr_number TEXT,
+  phone TEXT,
+  address TEXT,
+  currency TEXT DEFAULT 'ر.س',
+  vat_rate NUMERIC DEFAULT 0.15,
+  receipt_footer TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security & Public Read/Write Access Policies
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.store_config ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read/write products" ON public.products;
+DROP POLICY IF EXISTS "Allow public read/write orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow public read/write store_config" ON public.store_config;
 
 CREATE POLICY "Allow public read/write products" ON public.products FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public read/write orders" ON public.orders FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public read/write store_config" ON public.store_config FOR ALL USING (true) WITH CHECK (true);
 `;
 
-// Supabase API Helper Functions
+// Test Supabase Connection (Validates Read and Write permissions live)
+export async function testSupabaseConnection(): Promise<{ success: boolean; message: string }> {
+  if (!isSupabaseConfigured()) {
+    return { success: false, message: 'رابط ومفتاح Supabase غير مدخلين بعد.' };
+  }
+
+  // 1. Test Read Products
+  const resRead = await postgrestFetch('products?select=id&limit=1');
+  if (!resRead || resRead.error) {
+    const errObj = resRead?.error as { code?: string; message?: string };
+    if (errObj?.code === 'PGRST205' || errObj?.message?.includes('products')) {
+      return { 
+        success: false, 
+        message: 'جدول المنتجات (products) غير موجود في Supabase. يرجى تشغيل كود SQL في Supabase أولاً.' 
+      };
+    }
+    return { success: false, message: `فشل الاتصال بـ Supabase: ${errObj?.message || 'تأكد من صحة الرابط والمفتاح'}` };
+  }
+
+  return { success: true, message: 'تم الاتصال بنجاح بقواعد بيانات Supabase وسحب البيانات حياً!' };
+}
+
+// Fetch Products from Supabase
 export async function fetchProductsFromSupabase(): Promise<{ products: Product[]; missingTable: boolean }> {
   const result = await postgrestFetch('products?select=*&order=name');
   if (!result) return { products: [], missingTable: false };
@@ -156,6 +199,7 @@ export async function fetchProductsFromSupabase(): Promise<{ products: Product[]
   return { products, missingTable: false };
 }
 
+// Save single product to Supabase
 export async function saveProductToSupabase(product: Product): Promise<boolean> {
   const payload = {
     id: product.id,
@@ -179,6 +223,7 @@ export async function saveProductToSupabase(product: Product): Promise<boolean> 
   return Boolean(result && !result.error);
 }
 
+// Delete product from Supabase
 export async function deleteProductFromSupabase(productId: string): Promise<boolean> {
   const result = await postgrestFetch(`products?id=eq.${encodeURIComponent(productId)}`, {
     method: 'DELETE',
@@ -187,6 +232,7 @@ export async function deleteProductFromSupabase(productId: string): Promise<bool
   return Boolean(result && !result.error);
 }
 
+// Fetch Orders from Supabase
 export async function fetchOrdersFromSupabase(): Promise<{ orders: Order[]; missingTable: boolean }> {
   const result = await postgrestFetch('orders?select=*&order=created_at.desc');
   if (!result) return { orders: [], missingTable: false };
@@ -242,6 +288,7 @@ export async function fetchOrdersFromSupabase(): Promise<{ orders: Order[]; miss
   return { orders, missingTable: false };
 }
 
+// Save single order to Supabase
 export async function saveOrderToSupabase(order: Order): Promise<boolean> {
   const payload = {
     id: order.id,
@@ -264,13 +311,59 @@ export async function saveOrderToSupabase(order: Order): Promise<boolean> {
 
   const result = await postgrestFetch('orders', {
     method: 'POST',
+    headers: { 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify(payload),
   });
 
   return Boolean(result && !result.error);
 }
 
-// Bulk Push Helper
+// Fetch Store Config from Supabase
+export async function fetchStoreConfigFromSupabase(): Promise<StoreConfig | null> {
+  const result = await postgrestFetch('store_config?id=eq.main_store&select=*');
+  if (!result || result.error || !Array.isArray(result.data) || result.data.length === 0) {
+    return null;
+  }
+
+  const row = result.data[0];
+  return {
+    storeName: row.store_name,
+    storeSubtitle: row.store_subtitle || '',
+    taxNumber: row.tax_number || '',
+    crNumber: row.cr_number || '',
+    phone: row.phone || '',
+    address: row.address || '',
+    currency: row.currency || 'ر.س',
+    vatRate: row.vat_rate ? Number(row.vat_rate) : 0.15,
+    receiptFooter: row.receipt_footer || '',
+  };
+}
+
+// Save Store Config to Supabase
+export async function saveStoreConfigToSupabase(config: StoreConfig): Promise<boolean> {
+  const payload = {
+    id: 'main_store',
+    store_name: config.storeName,
+    store_subtitle: config.storeSubtitle,
+    tax_number: config.taxNumber,
+    cr_number: config.crNumber,
+    phone: config.phone,
+    address: config.address,
+    currency: config.currency,
+    vat_rate: config.vatRate,
+    receipt_footer: config.receiptFooter,
+  };
+
+  const result = await postgrestFetch('store_config', {
+    method: 'POST',
+    headers: { 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify(payload),
+  });
+
+  return Boolean(result && !result.error);
+}
+
+// Bulk Push All Local Data to Supabase (Migration)
 export async function pushAllLocalProductsToSupabase(products: Product[]): Promise<{ success: number; failed: number }> {
   let success = 0;
   let failed = 0;

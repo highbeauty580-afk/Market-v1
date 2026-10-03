@@ -50,7 +50,9 @@ import {
   saveProductToSupabase, 
   deleteProductFromSupabase, 
   fetchOrdersFromSupabase, 
-  saveOrderToSupabase 
+  saveOrderToSupabase,
+  fetchStoreConfigFromSupabase,
+  saveStoreConfigToSupabase
 } from './lib/supabase';
 
 export default function App() {
@@ -128,11 +130,31 @@ export default function App() {
     localStorage.setItem('pos_order_number_v4', orderNumber.toString());
   }, [orderNumber]);
 
-  // Real-Time Multi-Device Sync Effect via Central Server
+  // Real-Time Sync Effect (Prioritizes Supabase Cloud Database when configured)
   useEffect(() => {
     let isMounted = true;
 
-    const syncWithServer = async () => {
+    const performGlobalSync = async () => {
+      // 1. Primary Cloud Source: Supabase PostgreSQL
+      if (isSupabaseConfigured()) {
+        const { products: remoteProducts } = await fetchProductsFromSupabase();
+        if (remoteProducts && remoteProducts.length > 0 && isMounted) {
+          setProducts(remoteProducts);
+        }
+
+        const { orders: remoteOrders } = await fetchOrdersFromSupabase();
+        if (remoteOrders && remoteOrders.length > 0 && isMounted) {
+          setOrdersHistory(remoteOrders);
+        }
+
+        const remoteConfig = await fetchStoreConfigFromSupabase();
+        if (remoteConfig && isMounted) {
+          setStoreConfig(remoteConfig);
+        }
+        return;
+      }
+
+      // 2. Fallback Express Server Sync
       const serverData = await fetchServerData();
       if (!serverData || !isMounted) return;
 
@@ -151,30 +173,27 @@ export default function App() {
       }
     };
 
-    syncWithServer();
-    const interval = setInterval(syncWithServer, 3000);
+    performGlobalSync();
+    const interval = setInterval(performGlobalSync, 4000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
   }, []);
 
-  // Load from Supabase on initial load if configured
-  useEffect(() => {
-    if (isSupabaseConfigured()) {
-      handleSyncSupabase();
-    }
-  }, []);
-
   const handleSyncSupabase = async () => {
     if (!isSupabaseConfigured()) return;
     const { products: remoteProducts } = await fetchProductsFromSupabase();
-    if (remoteProducts.length > 0) {
+    if (remoteProducts && remoteProducts.length > 0) {
       setProducts(remoteProducts);
     }
     const { orders: remoteOrders } = await fetchOrdersFromSupabase();
-    if (remoteOrders.length > 0) {
+    if (remoteOrders && remoteOrders.length > 0) {
       setOrdersHistory(remoteOrders);
+    }
+    const remoteConfig = await fetchStoreConfigFromSupabase();
+    if (remoteConfig) {
+      setStoreConfig(remoteConfig);
     }
   };
 
@@ -461,6 +480,14 @@ export default function App() {
     }
   };
 
+  const handleSaveStoreConfig = (newConfig: StoreConfig) => {
+    setStoreConfig(newConfig);
+    saveConfigToServer(newConfig);
+    if (isSupabaseConfigured()) {
+      saveStoreConfigToSupabase(newConfig);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-[100dvh] h-[100dvh] w-screen pos-ambient-bg text-slate-800 overflow-hidden select-none dir-rtl font-sans">
       {/* 1. Header Navigation Bar */}
@@ -666,7 +693,7 @@ export default function App() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         config={storeConfig}
-        onSaveConfig={setStoreConfig}
+        onSaveConfig={handleSaveStoreConfig}
       />
 
       {/* Supabase Integration & Setup Modal */}
