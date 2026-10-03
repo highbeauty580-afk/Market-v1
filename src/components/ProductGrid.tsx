@@ -10,7 +10,7 @@ interface ProductGridProps {
   onOpenCustomItem: () => void;
 }
 
-export const ProductGrid: React.FC<ProductGridProps> = ({
+export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   products,
   currency,
   onAddToCart,
@@ -28,7 +28,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         </p>
         <button
           onClick={onOpenCustomItem}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md shadow-emerald-600/20"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all duration-150 cursor-pointer shadow-md shadow-emerald-600/20"
         >
           إضافة صنف مخصص جديد
         </button>
@@ -47,27 +47,27 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             key={product.id}
             disabled={isOutOfStock}
             onClick={() => onAddToCart(product)}
-            className={`group relative flex flex-col justify-between p-4 rounded-2xl border text-right transition-all cursor-pointer select-none h-38 ${
+            className={`group relative flex flex-col justify-between p-3.5 rounded-2xl border text-right transition-all duration-100 ease-out transform-gpu cursor-pointer select-none h-36 ${
               isOutOfStock
                 ? 'bg-slate-100/70 border-slate-200/80 opacity-60 cursor-not-allowed'
-                : 'bg-white/95 border-slate-200/90 shadow-md shadow-slate-200/50 hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-400/60 hover:-translate-y-1 active:scale-[0.98]'
+                : 'bg-white border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-400/80 hover:-translate-y-0.5 active:scale-[0.98]'
             }`}
           >
             {/* Top Row: Barcode indicator / Stock badge */}
             <div className="flex items-center justify-between w-full">
-              <span className="text-[10px] text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded-lg font-mono border border-slate-200/80">
+              <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-lg font-mono border border-slate-200/80">
                 #{product.barcode.slice(-4)}
               </span>
 
               {isLowStock && !isOutOfStock && (
-                <span className="flex items-center gap-1 text-[10px] text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-lg border border-amber-200/90 font-extrabold">
+                <span className="flex items-center gap-1 text-[10px] text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-lg border border-amber-200 font-bold">
                   <AlertTriangle className="w-2.5 h-2.5 text-amber-600" />
                   متبقي {product.stock}
                 </span>
               )}
 
               {isOutOfStock && (
-                <span className="text-[10px] text-rose-800 bg-rose-100/80 px-2 py-0.5 rounded-lg border border-rose-200 font-extrabold">
+                <span className="text-[10px] text-rose-800 bg-rose-100/80 px-2 py-0.5 rounded-lg border border-rose-200 font-bold">
                   نفذ المخزون
                 </span>
               )}
@@ -75,7 +75,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
             {/* Middle: Product Name */}
             <div className="my-auto py-1">
-              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-2 leading-snug group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors">
                 {product.name}
               </h4>
               {product.nameEn && (
@@ -86,7 +86,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             </div>
 
             {/* Bottom Row: Price & Add Button */}
-            <div className="flex items-end justify-between w-full pt-2 border-t border-slate-100">
+            <div className="flex items-end justify-between w-full pt-1.5 border-t border-slate-100">
               <div>
                 <span className="text-sm sm:text-base font-black text-emerald-600 font-mono tracking-tight">
                   {formatCurrency(product.price, currency)}
@@ -94,7 +94,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 <span className="text-[10px] text-slate-400 mr-1">/ {product.unit}</span>
               </div>
 
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:shadow-indigo-500/30">
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition-all shadow-xs">
                 <Plus className="w-4 h-4 stroke-[3]" />
               </div>
             </div>
@@ -103,4 +103,4 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       })}
     </div>
   );
-};
+});
