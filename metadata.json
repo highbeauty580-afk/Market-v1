@@ -1,0 +1,6 @@
+{
+  "name": "نظام الكاشير السريع | Traditional POS System",
+  "description": "واجهة كاشير تقليدية متكاملة مع إدارة الطلبات، طباعة الفواتير الضريبية، الدفع النقدي والشبكة، والتقارير اليومية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
