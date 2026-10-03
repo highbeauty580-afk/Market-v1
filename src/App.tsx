@@ -405,7 +405,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-slate-950 text-slate-100 overflow-hidden select-none dir-rtl font-sans">
+    <div className="flex flex-col h-screen w-screen pos-ambient-bg text-slate-800 overflow-hidden select-none dir-rtl font-sans">
       {/* 1. Header Navigation Bar */}
       <Header
         storeConfig={storeConfig}
@@ -420,9 +420,9 @@ export default function App() {
       />
 
       {/* 2. Main POS Workspace Grid Split */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-3 gap-3.5">
         {/* Left Column: Catalog, Categories, and Barcode Bar */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-slate-900/50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xl shadow-slate-200/50">
           {/* Barcode & Search Input Bar */}
           <BarcodeScannerBar
             searchQuery={searchQuery}

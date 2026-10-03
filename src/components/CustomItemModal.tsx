@@ -45,16 +45,18 @@ export const CustomItemModal: React.FC<CustomItemModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
-        <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Tag className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-base font-bold text-white">إضافة صنف غير مسجل (مخصص)</h3>
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+        <div className="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+              <Tag className="w-5 h-5 text-emerald-600" />
+            </div>
+            <h3 className="text-base font-extrabold text-slate-900">إضافة صنف غير مسجل (مخصص)</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-xl transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -62,19 +64,19 @@ export const CustomItemModal: React.FC<CustomItemModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="text-xs text-slate-300 font-medium block mb-1">اسم الصنف:</label>
+            <label className="text-xs text-slate-600 font-bold block mb-1">اسم الصنف:</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-700 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-600"
               placeholder="مثال: صنف متفرق / قسم المخبوزات"
             />
           </div>
 
           <div>
-            <label className="text-xs text-slate-300 font-medium block mb-1">
+            <label className="text-xs text-slate-600 font-bold block mb-1">
               سعر البيع الإجمالي ({currency}):
             </label>
             <input
@@ -84,7 +86,7 @@ export const CustomItemModal: React.FC<CustomItemModalProps> = ({
               onChange={(e) => setPrice(e.target.value)}
               required
               autoFocus
-              className="w-full bg-slate-950 border border-slate-700 text-emerald-400 font-mono font-bold text-lg rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-50 border border-slate-200 text-emerald-700 font-mono font-bold text-lg rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-600"
               placeholder="0.00"
             />
           </div>
@@ -93,13 +95,13 @@ export const CustomItemModal: React.FC<CustomItemModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-700 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             >
               إلغاء
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-md"
+              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-md shadow-emerald-600/20"
             >
               <Plus className="w-4 h-4" />
               <span>إضافة للفاتورة</span>

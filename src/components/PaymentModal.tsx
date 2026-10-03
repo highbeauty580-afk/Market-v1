@@ -95,23 +95,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+            <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200">
               <Banknote className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">إتمام عملية الدفع</h3>
-              <p className="text-xs text-slate-400">اختر طريقة الدفع وأدخل المبلغ المستلم</p>
+              <h3 className="text-lg font-extrabold text-slate-900">إتمام عملية الدفع</h3>
+              <p className="text-xs text-slate-500">اختر طريقة الدفع وأدخل المبلغ المستلم</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white bg-slate-900 rounded-xl border border-slate-800 transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-slate-700 bg-white rounded-xl border border-slate-200 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,28 +120,28 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6">
           {/* Total Banner */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+          <div className="bg-slate-900 border border-slate-800 text-white rounded-2xl p-4 flex items-center justify-between shadow-md">
             <div>
               <span className="text-xs text-slate-400 font-medium">المبلغ المطلوب للدفع</span>
-              <div className="text-2xl font-black text-white font-mono mt-0.5">
+              <div className="text-2xl font-black text-emerald-400 font-mono mt-0.5">
                 {formatCurrency(grandTotal, currency)}
               </div>
             </div>
             <div className="text-left">
-              <span className="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-mono">
+              <span className="text-[10px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-mono font-bold">
                 فاتورة محددة
               </span>
             </div>
           </div>
 
           {/* Payment Method Selector Tabs */}
-          <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+          <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
             <button
               onClick={() => { setMethod('cash'); posAudio.playBeep(); }}
               className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 method === 'cash'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Banknote className="w-4 h-4" />
@@ -152,8 +152,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               onClick={() => { setMethod('card'); posAudio.playBeep(); }}
               className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 method === 'card'
-                  ? 'bg-sky-600 text-white shadow-md shadow-sky-950'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <CreditCard className="w-4 h-4" />
@@ -164,8 +164,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               onClick={() => { setMethod('split'); posAudio.playBeep(); }}
               className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 method === 'split'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-950'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Coins className="w-4 h-4" />
@@ -178,13 +178,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             <div className="space-y-4">
               {/* Presets */}
               <div>
-                <label className="text-xs text-slate-400 block mb-2 font-medium">
+                <label className="text-xs text-slate-500 block mb-2 font-bold">
                   المبالغ المجهزة السريعة:
                 </label>
                 <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                   <button
                     onClick={() => { setCashInput(grandTotal.toFixed(2)); posAudio.playBeep(); }}
-                    className="py-2 bg-emerald-950 border border-emerald-700/60 text-emerald-300 font-bold text-xs rounded-xl hover:bg-emerald-900 transition-colors cursor-pointer col-span-2"
+                    className="py-2 bg-emerald-50 border border-emerald-300 text-emerald-800 font-extrabold text-xs rounded-xl hover:bg-emerald-100 transition-colors cursor-pointer col-span-2 shadow-xs"
                   >
                     بالظبط ({grandTotal.toFixed(1)})
                   </button>
@@ -192,7 +192,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <button
                       key={bill}
                       onClick={() => { setCashInput(bill.toString()); posAudio.playBeep(); }}
-                      className="py-2 bg-slate-800 border border-slate-700 text-slate-200 font-bold text-xs rounded-xl hover:bg-slate-700 hover:border-slate-600 transition-colors cursor-pointer font-mono"
+                      className="py-2 bg-slate-100 border border-slate-200 text-slate-800 font-bold text-xs rounded-xl hover:bg-slate-200 transition-colors cursor-pointer font-mono shadow-xs"
                     >
                       {bill}
                     </button>
@@ -202,25 +202,25 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               {/* Input Display & Change Calculation */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3">
-                  <span className="text-[11px] text-slate-400 block">المبلغ المستلم من العميل</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3">
+                  <span className="text-[11px] text-slate-500 font-bold block">المبلغ المستلم من العميل</span>
                   <input
                     type="number"
                     value={cashInput}
                     onChange={(e) => setCashInput(e.target.value)}
-                    className="w-full bg-transparent text-xl font-extrabold text-white font-mono focus:outline-none pt-1"
+                    className="w-full bg-transparent text-xl font-extrabold text-slate-900 font-mono focus:outline-none pt-1"
                     placeholder="0.00"
                   />
                 </div>
 
                 <div className={`border rounded-2xl p-3 ${
                   isCashSufficient 
-                    ? 'bg-emerald-950/40 border-emerald-500/40' 
-                    : 'bg-rose-950/30 border-rose-800/40'
+                    ? 'bg-emerald-50 border-emerald-300' 
+                    : 'bg-rose-50 border-rose-300'
                 }`}>
-                  <span className="text-[11px] text-slate-400 block">المتبقي للعميل (الباقي)</span>
+                  <span className="text-[11px] text-slate-500 font-bold block">المتبقي للعميل (الباقي)</span>
                   <div className={`text-xl font-black font-mono pt-1 ${
-                    isCashSufficient ? 'text-emerald-400' : 'text-rose-400'
+                    isCashSufficient ? 'text-emerald-700' : 'text-rose-600'
                   }`}>
                     {isCashSufficient 
                       ? formatCurrency(changeGiven, currency)
@@ -230,12 +230,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
 
               {/* Onscreen POS Numpad */}
-              <div className="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+              <div className="grid grid-cols-3 gap-2 bg-slate-100 p-3 rounded-2xl border border-slate-200">
                 {['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', 'DEL'].map((btn) => (
                   <button
                     key={btn}
                     onClick={() => handleNumpad(btn)}
-                    className="py-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-mono font-bold text-base rounded-xl transition-colors cursor-pointer"
+                    className="py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-900 font-mono font-bold text-base rounded-xl transition-colors cursor-pointer shadow-xs"
                   >
                     {btn}
                   </button>
@@ -247,13 +247,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* CARD MODE */}
           {method === 'card' && (
             <div className="space-y-4 text-center py-4">
-              <div className="w-20 h-20 bg-sky-950 border-2 border-sky-500/40 rounded-full flex items-center justify-center mx-auto text-sky-400 animate-pulse">
+              <div className="w-20 h-20 bg-sky-50 border-2 border-sky-300 rounded-full flex items-center justify-center mx-auto text-sky-600 animate-pulse shadow-sm">
                 <CreditCard className="w-10 h-10" />
               </div>
 
               <div>
-                <h4 className="text-base font-bold text-white">جهاز صراف مدى / NFC جاهز</h4>
-                <p className="text-xs text-slate-400 mt-1">
+                <h4 className="text-base font-bold text-slate-900">جهاز صراف مدى / NFC جاهز</h4>
+                <p className="text-xs text-slate-500 mt-1">
                   مرر بطاقة العميل أو الجوال عبر جهاز الشبكة بقيمة {formatCurrency(grandTotal, currency)}
                 </p>
               </div>
@@ -261,22 +261,22 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               {cardStatus === 'idle' && (
                 <button
                   onClick={handleCardSimulate}
-                  className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-2xl transition-colors cursor-pointer shadow-lg shadow-sky-950"
+                  className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-2xl transition-colors cursor-pointer shadow-md shadow-sky-600/30"
                 >
                   محاكاة تمرير البطاقة
                 </button>
               )}
 
               {cardStatus === 'processing' && (
-                <div className="text-amber-400 font-bold text-sm flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                <div className="text-amber-700 font-bold text-sm flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
                   <span>جاري معالجة العملية بالشبكة...</span>
                 </div>
               )}
 
               {cardStatus === 'approved' && (
-                <div className="text-emerald-400 font-bold text-sm flex items-center justify-center gap-2 bg-emerald-950/60 border border-emerald-800 p-3 rounded-2xl">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <div className="text-emerald-800 font-bold text-sm flex items-center justify-center gap-2 bg-emerald-50 border border-emerald-300 p-3 rounded-2xl">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span>تم قبول عملية الدفع بنجاح!</span>
                 </div>
               )}
@@ -286,21 +286,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* SPLIT MODE */}
           {method === 'split' && (
             <div className="space-y-4">
-              <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div>
-                  <label className="text-xs text-slate-400 block mb-1">المبلغ النقدي (كاش):</label>
+                  <label className="text-xs text-slate-600 font-bold block mb-1">المبلغ النقدي (كاش):</label>
                   <input
                     type="number"
                     value={cashInput}
                     onChange={(e) => setCashInput(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-white font-mono font-bold text-base rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-white border border-slate-200 text-slate-900 font-mono font-bold text-base rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500 shadow-xs"
                     placeholder="0.00"
                   />
                 </div>
 
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">المتبقي للدفع عبر البطاقة (شبكة):</span>
-                  <span className="font-mono font-bold text-purple-400 text-sm">
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+                  <span className="text-slate-600 font-bold">المتبقي للدفع عبر البطاقة (شبكة):</span>
+                  <span className="font-mono font-bold text-purple-700 text-sm">
                     {formatCurrency(Math.max(0, grandTotal - (parseFloat(cashInput) || 0)), currency)}
                   </span>
                 </div>
@@ -310,10 +310,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-800 transition-colors cursor-pointer"
+            className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors cursor-pointer"
           >
             تراجع
           </button>
@@ -321,7 +321,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           <button
             disabled={method === 'cash' && !isCashSufficient}
             onClick={handleFinish}
-            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-950/80 flex items-center gap-2"
+            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer shadow-md shadow-emerald-600/30 flex items-center gap-2"
           >
             <Printer className="w-4 h-4" />
             <span>إتمام البيع وطباعة الفاتورة</span>

@@ -76,22 +76,22 @@ export const DailyReportModal: React.FC<DailyReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+            <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200">
               <BarChart3 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">تقرير المبيعات اليومية (Z-Report)</h3>
-              <p className="text-xs text-slate-400">ملخص الوردية الحالية للكاشير {cashierName}</p>
+              <h3 className="text-base font-extrabold text-slate-900">تقرير المبيعات اليومية (Z-Report)</h3>
+              <p className="text-xs text-slate-500">ملخص الوردية الحالية للكاشير {cashierName}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,67 +101,67 @@ export const DailyReportModal: React.FC<DailyReportModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-6">
           {/* Main Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5">
-              <span className="text-[11px] text-slate-400 font-medium">إجمالي المبيعات</span>
-              <div className="text-xl font-black text-emerald-400 font-mono mt-1">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 shadow-xs">
+              <span className="text-[11px] text-slate-500 font-bold">إجمالي المبيعات</span>
+              <div className="text-xl font-black text-emerald-700 font-mono mt-1">
                 {formatCurrency(totalSales, storeConfig.currency)}
               </div>
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5">
-              <span className="text-[11px] text-slate-400 font-medium">عدد الفواتير</span>
-              <div className="text-xl font-black text-white font-mono mt-1">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 shadow-xs">
+              <span className="text-[11px] text-slate-500 font-bold">عدد الفواتير</span>
+              <div className="text-xl font-black text-slate-900 font-mono mt-1">
                 {totalOrders}
               </div>
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5">
-              <span className="text-[11px] text-slate-400 font-medium">الضريبة المجمعة</span>
-              <div className="text-xl font-black text-amber-400 font-mono mt-1">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 shadow-xs">
+              <span className="text-[11px] text-slate-500 font-bold">الضريبة المجمعة</span>
+              <div className="text-xl font-black text-amber-700 font-mono mt-1">
                 {formatCurrency(totalTax, storeConfig.currency)}
               </div>
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5">
-              <span className="text-[11px] text-slate-400 font-medium">متوسط الفاتورة</span>
-              <div className="text-xl font-black text-cyan-400 font-mono mt-1">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 shadow-xs">
+              <span className="text-[11px] text-slate-500 font-bold">متوسط الفاتورة</span>
+              <div className="text-xl font-black text-cyan-700 font-mono mt-1">
                 {formatCurrency(avgOrderValue, storeConfig.currency)}
               </div>
             </div>
           </div>
 
           {/* Payment Method Breakdown */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
+            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
               توزيع المبيعات حسب طريقة الدفع
             </h4>
             <div className="grid grid-cols-3 gap-3 text-xs">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+              <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2">
-                  <Banknote className="w-4 h-4 text-emerald-400" />
-                  <span className="text-slate-300 font-semibold">نقدي (كاش)</span>
+                  <Banknote className="w-4 h-4 text-emerald-600" />
+                  <span className="text-slate-800 font-bold">نقدي (كاش)</span>
                 </div>
-                <span className="font-mono font-bold text-emerald-400">
+                <span className="font-mono font-bold text-emerald-700">
                   {formatCurrency(cashSales, storeConfig.currency)}
                 </span>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+              <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-sky-400" />
-                  <span className="text-slate-300 font-semibold">شبكة (مدى)</span>
+                  <CreditCard className="w-4 h-4 text-sky-600" />
+                  <span className="text-slate-800 font-bold">شبكة (مدى)</span>
                 </div>
-                <span className="font-mono font-bold text-sky-400">
+                <span className="font-mono font-bold text-sky-700">
                   {formatCurrency(cardSales, storeConfig.currency)}
                 </span>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+              <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-purple-400" />
-                  <span className="text-slate-300 font-semibold">دفع مشترك</span>
+                  <Receipt className="w-4 h-4 text-purple-600" />
+                  <span className="text-slate-800 font-bold">دفع مشترك</span>
                 </div>
-                <span className="font-mono font-bold text-purple-400">
+                <span className="font-mono font-bold text-purple-700">
                   {formatCurrency(splitSales, storeConfig.currency)}
                 </span>
               </div>
@@ -169,9 +169,9 @@ export const DailyReportModal: React.FC<DailyReportModalProps> = ({
           </div>
 
           {/* Top Selling Products */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
+            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
               الأصناف الأكثر مبيعاً اليوم
             </h4>
 
@@ -182,17 +182,17 @@ export const DailyReportModal: React.FC<DailyReportModalProps> = ({
                 {topProducts.map((p, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between text-xs bg-slate-900 p-2.5 rounded-xl border border-slate-800"
+                    className="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-mono font-bold text-[10px]">
+                      <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-mono font-bold text-[10px]">
                         {idx + 1}
                       </span>
-                      <span className="font-bold text-slate-200">{p.name}</span>
+                      <span className="font-bold text-slate-800">{p.name}</span>
                     </div>
                     <div className="flex items-center gap-4 font-mono">
-                      <span className="text-slate-400 text-[11px]">{p.qty} كمية</span>
-                      <span className="font-bold text-emerald-400">
+                      <span className="text-slate-500 text-[11px]">{p.qty} كمية</span>
+                      <span className="font-bold text-emerald-700">
                         {formatCurrency(p.total, storeConfig.currency)}
                       </span>
                     </div>
@@ -204,19 +204,19 @@ export const DailyReportModal: React.FC<DailyReportModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
           <button
             onClick={onResetShift}
-            className="px-3.5 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
             title="تصفير الوردية وبدء يوم جديد"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 text-rose-600" />
             <span>إغلاق الوردية وتصفير العدادات</span>
           </button>
 
           <button
             onClick={handlePrintZReport}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-2 shadow-md"
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-2 shadow-md shadow-emerald-600/20"
           >
             <Printer className="w-4 h-4" />
             <span>طباعة تقرير Z-Report</span>

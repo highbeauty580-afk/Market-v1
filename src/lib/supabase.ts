@@ -17,7 +17,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
         persistSession: false,
       },
       global: {
-        fetch: (...args) => globalThis.fetch(...args),
+        fetch: typeof window !== 'undefined' ? window.fetch.bind(window) : fetch,
       },
     })
   : null;
