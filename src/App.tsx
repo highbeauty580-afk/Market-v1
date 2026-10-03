@@ -37,6 +37,14 @@ import { AmounaReservedModal } from './components/AmounaReservedModal';
 import { posAudio } from './utils/audio';
 import { formatCurrency } from './utils/receiptGenerator';
 import { 
+  fetchServerData, 
+  saveProductToServer, 
+  deleteProductFromServer, 
+  saveOrderToServer, 
+  saveConfigToServer, 
+  syncBulkLocalToServer 
+} from './lib/apiSync';
+import { 
   isSupabaseConfigured, 
   fetchProductsFromSupabase, 
   saveProductToSupabase, 
@@ -119,6 +127,37 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('pos_order_number_v4', orderNumber.toString());
   }, [orderNumber]);
+
+  // Real-Time Multi-Device Sync Effect via Central Server
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncWithServer = async () => {
+      const serverData = await fetchServerData();
+      if (!serverData || !isMounted) return;
+
+      if (serverData.products && serverData.products.length > 0) {
+        setProducts(serverData.products);
+      } else if (products.length > 0) {
+        syncBulkLocalToServer(products, ordersHistory, storeConfig);
+      }
+
+      if (serverData.orders && serverData.orders.length > 0) {
+        setOrdersHistory(serverData.orders);
+      }
+
+      if (serverData.config) {
+        setStoreConfig(serverData.config);
+      }
+    };
+
+    syncWithServer();
+    const interval = setInterval(syncWithServer, 3000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Load from Supabase on initial load if configured
   useEffect(() => {
@@ -361,7 +400,13 @@ export default function App() {
     // Append to Order History
     setOrdersHistory((prev) => [completedOrder, ...prev]);
 
-    // Sync Order to Supabase
+    // Sync Order & updated product stocks to central server
+    saveOrderToServer(completedOrder);
+    updatedProducts.forEach((p) => {
+      saveProductToServer(p);
+    });
+
+    // Sync Order to Supabase if configured
     if (isSupabaseConfigured()) {
       saveOrderToSupabase(completedOrder);
     }
@@ -391,6 +436,8 @@ export default function App() {
       return [prod, ...prev];
     });
 
+    saveProductToServer(prod);
+
     if (isSupabaseConfigured()) {
       saveProductToSupabase(prod);
     }
@@ -399,6 +446,7 @@ export default function App() {
   const handleDeleteProduct = (id: string) => {
     posAudio.playBeep();
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    deleteProductFromServer(id);
     if (isSupabaseConfigured()) {
       deleteProductFromSupabase(id);
     }
